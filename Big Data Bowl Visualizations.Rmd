@@ -1,0 +1,298 @@
+---
+title: "Big Data Bowl Visualizations"
+output: html_document
+date: "2024-01-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
+library(tidyverse)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(flextable)
+```
+
+```{r read_in_data}
+games = read_csv("games.csv")
+full_dict = read_csv("full_dictionary.csv")
+games_dict = read_csv("games_dictionary.csv")
+ex_dict = read_csv("example_dictionary.csv")
+```
+
+
+## Table 1: An example play
+
+```{r}
+ft1 = ex_dict %>%
+  select(-c(`...1`, Player_ID, Team, Position)) %>%
+  select(index, Player_Name, Opportunities, Contains) %>%
+  rename(Opportunity = Opportunities, Contain = Contains) %>%
+  arrange(Opportunity, Contain) %>%
+  flextable()
+
+gr1 = gen_grob(ft1, fit = "auto", scaling = "full", just = "center")
+gr1_dim = dim(gr1)
+
+ragg::agg_png(filename = "Table1.png", width = 2*gr1_dim$width,
+              height = 2*gr1_dim$height, units = "in"
+              )
+plot(gr1)
+dev.off()
+```
+
+## Table 2: Top and Bottom 10 individual game scores
+
+```{r}
+top10 = games_dict %>%
+  filter(Opportunities > 10) %>%
+  mutate(TOCQ_X = Contains / Opportunities,
+         Game = as.character(game)) %>%
+  select(Game, Player_Name, Team, Position, TOCQ_X) %>%
+  arrange(desc(TOCQ_X)) %>%
+  slice_head(n = 10)
+
+bottom10 = games_dict %>%
+  filter(Opportunities > 10) %>%
+  mutate(TOCQ_X = Contains / Opportunities,
+         Game = as.character(game)) %>%
+  select(Game, Player_Name, Team, Position, TOCQ_X) %>%
+  rename(bot_game = Game, bot_name = Player_Name, bot_team = Team, 
+         bot_pos = Position, bot_tocq = TOCQ_X) %>%
+  arrange(bot_tocq) %>%
+  slice_head(n = 10)
+
+pair_names = colnames(cbind(top10, bottom10))
+
+ft2 = cbind(top10, bottom10) %>%
+  flextable(col_keys = c(pair_names[1:5], "col1", pair_names[6:10])) %>%
+  set_header_labels(bot_game = "Game", bot_name = "Player_Name", 
+    bot_team = "Team", bot_pos = "Position",
+    bot_tocq = "TOCQ_X" ) %>%
+  width(j = "col1", width = .2) |> 
+  empty_blanks() %>%
+  add_header_row(values = c("Top 10 Individual Games", 
+                            "", 
+                            "Bottom 10 Individual Games"), 
+                 colwidths = c(5, 1, 5))
+
+gr2 = gen_grob(ft2, fit = "auto", scaling = "full", just = "center")
+gr2_dim = dim(gr2)
+
+ragg::agg_png(filename = "Table2.png", width = 2*gr2_dim$width,
+              height = 2*gr2_dim$height, units = "in"
+              )
+plot(gr2)
+dev.off()
+```
+
+
+## Table 3: Top and Bottom 10 half season scores
+
+```{r}
+top10 = full_dict %>%
+  filter(Opportunities > 30) %>%
+  mutate(TOCQ_X = Contains / Opportunities) %>%
+  select(Player_Name, Team, Position, TOCQ_X) %>%
+  arrange(desc(TOCQ_X)) %>%
+  slice_head(n = 10)
+
+bottom10 = full_dict %>%
+  filter(Opportunities > 30) %>%
+  mutate(TOCQ_X = Contains / Opportunities) %>%
+  select(Player_Name, Team, Position, TOCQ_X) %>%
+  rename(bot_name = Player_Name, bot_team = Team, 
+         bot_pos = Position, bot_tocq = TOCQ_X) %>%
+  arrange(bot_tocq) %>%
+  slice_head(n = 10)
+
+pair_names = colnames(cbind(top10, bottom10))
+
+ft3 = cbind(top10, bottom10) %>%
+  flextable(col_keys = c(pair_names[1:4], "col1", pair_names[5:8])) %>%
+  set_header_labels(bot_name = "Player_Name", 
+    bot_team = "Team", bot_pos = "Position",
+    bot_tocq = "TOCQ_X" ) %>%
+  width(j = "col1", width = .2) |> 
+  empty_blanks() %>%
+  add_header_row(values = c("Top 10 Individual Players", 
+                            "", 
+                            "Bottom 10 Individual Players"), 
+                 colwidths = c(4, 1, 4))
+
+gr3 = gen_grob(ft3, fit = "auto", scaling = "full", just = "center")
+gr3_dim = dim(gr3)
+
+ragg::agg_png(filename = "Table3.png", width = 2*gr3_dim$width,
+              height = 2*gr3_dim$height, units = "in"
+              )
+plot(gr3)
+dev.off()
+```
+
+## Figure 4: Box plot by position group
+
+```{r}
+pos_levels = full_dict %>%
+  filter(Opportunities > 5, Position != "DB") %>%
+  mutate(TOCQ_X = Contains / Opportunities, 
+         Pos_group = case_when(Position %in% c("CB", "FS", "SS") ~ "Secondary",
+                               Position %in% c("ILB", "MLB", "OLB") ~ "Linebacker",
+                               Position %in% c("DT", "NT", "DE") ~ "Defensive Line")) %>%
+  with(reorder(Position, TOCQ_X, median)) %>%
+  levels()
+
+full_dict %>%
+  filter(Opportunities > 5, Position != "DB") %>%
+  mutate(TOCQ_X = Contains / Opportunities, 
+         Pos_group = case_when(Position %in% c("CB", "FS", "SS") ~ "Secondary",
+                               Position %in% c("ILB", "MLB", "OLB") ~ "Linebacker",
+                               Position %in% c("DT", "NT", "DE") ~ "Defensive Line")) %>%
+  mutate(Position = factor(Position, levels = pos_levels)) %>%
+  ggplot(aes(x = Position, y = TOCQ_X, fill = Pos_group)) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(title = "Half Season TOCQ_X score by position group",
+       color = "Position Group")
+
+ggsave("Figure4.png")
+```
+
+## Table 5: Top and Bottom 10 Single Game TOCQ_T scores
+
+```{r}
+top10team = games_dict %>%
+  group_by(game, Team) %>%
+  summarize(team_contains = sum(Contains),
+            team_opps = sum(Opportunities)) %>%
+  mutate(TOCQ_T = team_contains / team_opps,
+         gameId = game) %>%
+  left_join(games, by = join_by(gameId)) %>%
+  mutate(Opponent = case_when(Team == homeTeamAbbr ~ visitorTeamAbbr,
+                              Team == visitorTeamAbbr ~ homeTeamAbbr)) %>%
+  ungroup() %>%
+  select(Team, week, Opponent, TOCQ_T) %>%
+  rename(Week = week) %>%
+  arrange(desc(TOCQ_T)) %>%
+  slice_head(n = 10)
+
+bottom10team = games_dict %>%
+  group_by(game, Team) %>%
+  summarize(team_contains = sum(Contains),
+            team_opps = sum(Opportunities)) %>%
+  mutate(TOCQ_T = team_contains / team_opps,
+         gameId = game) %>%
+  left_join(games, by = join_by(gameId)) %>%
+  mutate(Opponent = case_when(Team == homeTeamAbbr ~ visitorTeamAbbr,
+                              Team == visitorTeamAbbr ~ homeTeamAbbr)) %>%
+  ungroup() %>%
+  select(Team, week, Opponent, TOCQ_T) %>%
+  rename(bot_team = Team, bot_week = week, 
+         bot_opp = Opponent, bot_tocq = TOCQ_T) %>%
+  arrange(bot_tocq) %>%
+  slice_head(n = 10)
+
+pair_names = colnames(cbind(top10team, bottom10team))
+
+ft5 = cbind(top10team, bottom10team) %>%
+  flextable(col_keys = c(pair_names[1:4], "col1", pair_names[5:8])) %>%
+  set_header_labels(bot_week = "Week", 
+    bot_team = "Team", bot_opp = "Opponent",
+    bot_tocq = "TOCQ_T" ) %>%
+  width(j = "col1", width = .2) |> 
+  empty_blanks() %>%
+  add_header_row(values = c("Top 10 Team Games", 
+                            "", 
+                            "Bottom 10 Team Games"), 
+                 colwidths = c(4, 1, 4))
+
+gr5 = gen_grob(ft5, fit = "auto", scaling = "full", just = "center")
+gr5_dim = dim(gr5)
+
+ragg::agg_png(filename = "Table5.png", width = 2*gr5_dim$width,
+              height = 2*gr5_dim$height, units = "in"
+              )
+plot(gr5)
+dev.off()
+```
+## Unused Figure: Team TOCQ_T heatmap
+
+```{r}
+teams = games_dict %>% distinct(Team) %>% pull()
+
+games_dict %>%
+  group_by(game, Team) %>%
+  summarize(team_contains = sum(Contains),
+            team_opps = sum(Opportunities)) %>%
+  mutate(TOCQ_T = team_contains / team_opps,
+         gameId = game) %>%
+  left_join(games, by = join_by(gameId)) %>%
+  mutate(Opponent = case_when(Team == homeTeamAbbr ~ visitorTeamAbbr,
+                              Team == visitorTeamAbbr ~ homeTeamAbbr)) %>%
+  ungroup() %>%
+  group_by(Team, Opponent) %>%
+  summarize(TOCQ_T = mean(TOCQ_T)) %>%
+  ggplot(aes(x = Team, y = Opponent, fill = TOCQ_T)) +
+  geom_tile() +
+  coord_fixed() +
+  theme_minimal() +
+  scale_fill_continuous(limits = c(0,1)) %>%
+  labs(title = "TOCQ_T for Team-Opponent Pairs",
+       fill = "Team TOCQ")
+```
+
+## Figure 6: Half Season TOCQ_T team bargraph
+
+```{r}
+games_dict %>%
+  group_by(game, Team) %>%
+  summarize(team_contains = sum(Contains),
+            team_opps = sum(Opportunities), .groups = "drop") %>%
+  mutate(TOCQ_T = team_contains / team_opps) %>%
+  ungroup() %>%
+  group_by(Team) %>%
+  summarize(TOCQ_T = mean(TOCQ_T),) %>%
+  ungroup() %>%
+  add_row(Team = "NFL", TOCQ_T = mean(pull(., TOCQ_T))) %>%
+  mutate(avg = case_when(TOCQ_T > mean(pull(., TOCQ_T)) ~ "Above League Average",
+                         TOCQ_T < mean(pull(., TOCQ_T)) ~ "Below League Average",
+                         TRUE ~ "League Average"),
+         avg = factor(avg, levels = c("Above League Average", 
+                                      "League Average",
+                                      "Below League Average"))) %>%
+  arrange(desc(TOCQ_T)) %>%
+  ggplot(aes(y = fct_reorder(Team, TOCQ_T), x = TOCQ_T, fill = avg)) +
+  geom_col() +
+  scale_fill_manual(values = c("darkgreen", "black", "purple")) +
+  theme_bw() +
+  labs(title = "Half Season TOCQ_T by Team",
+       y= "Team",
+       x = "Team TOCQ",
+       fill = element_blank())
+
+ggsave("Figure6.png")
+```
+
+## Figure 7: Individual Position Group by team heatmap
+
+```{r}
+full_dict %>%
+  filter(!(Position %in% c("RB", "WR", "FB"))) %>%
+  mutate(Pos_group = case_when(Position %in% c("CB", "FS", "SS", "DB") ~ "Secondary",
+                               Position %in% c("ILB", "MLB", "OLB") ~ "Linebacker",
+                               Position %in% c("DT", "NT", "DE") ~ "Defensive Line")) %>%
+  group_by(Team, Pos_group) %>%
+  summarize(pos_group_contains = sum(Contains),
+            pos_group_opps = sum(Opportunities), .groups = "drop") %>%
+  mutate(TOCQ_TP = pos_group_contains / pos_group_opps) %>%
+  ggplot(aes(x = Pos_group, y = Team, fill = TOCQ_TP)) +
+  scale_fill_gradient(low = "black", high = "lightblue") +
+  geom_tile() +
+  theme_bw() + 
+  labs(title = "Position Group overall TOCQ by Team",
+       x = "Position Group",
+       fill = "Position Group TOCQ")
+
+ggsave("Figure7.png")
+```
+
