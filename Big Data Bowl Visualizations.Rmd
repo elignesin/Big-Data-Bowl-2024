@@ -29,7 +29,8 @@ ft1 = ex_dict %>%
   select(index, Player_Name, Opportunities, Contains) %>%
   rename(Opportunity = Opportunities, Contain = Contains) %>%
   arrange(Opportunity, Contain) %>%
-  flextable()
+  flextable() %>%
+  add_header_row(values = "Table 1: Result of Example Play", colwidths = 4)
 
 gr1 = gen_grob(ft1, fit = "auto", scaling = "full", just = "center")
 gr1_dim = dim(gr1)
@@ -74,7 +75,9 @@ ft2 = cbind(top10, bottom10) %>%
   add_header_row(values = c("Top 10 Individual Games", 
                             "", 
                             "Bottom 10 Individual Games"), 
-                 colwidths = c(5, 1, 5))
+                 colwidths = c(5, 1, 5)) %>%
+  add_header_row(values = "Table 2: Individual TOCQ_X Games (Min 10 Opportunities)", 
+                 colwidths = 11)
 
 gr2 = gen_grob(ft2, fit = "auto", scaling = "full", just = "center")
 gr2_dim = dim(gr2)
@@ -118,7 +121,9 @@ ft3 = cbind(top10, bottom10) %>%
   add_header_row(values = c("Top 10 Individual Players", 
                             "", 
                             "Bottom 10 Individual Players"), 
-                 colwidths = c(4, 1, 4))
+                 colwidths = c(4, 1, 4)) %>%
+  add_header_row(values = "Table 3: Half Season TOCQ_X Scores (min 30 Opportunites)",
+                 colwidths = 9)
 
 gr3 = gen_grob(ft3, fit = "auto", scaling = "full", just = "center")
 gr3_dim = dim(gr3)
@@ -152,7 +157,7 @@ full_dict %>%
   ggplot(aes(x = Position, y = TOCQ_X, fill = Pos_group)) +
   geom_boxplot() +
   theme_bw() +
-  labs(title = "Half Season TOCQ_X score by position group",
+  labs(title = "Figure 4: Half Season TOCQ_X score by position group",
        color = "Position Group")
 
 ggsave("Figure4.png")
@@ -190,7 +195,7 @@ bottom10team = games_dict %>%
   rename(bot_team = Team, bot_week = week, 
          bot_opp = Opponent, bot_tocq = TOCQ_T) %>%
   arrange(bot_tocq) %>%
-  slice_head(n = 10)
+  slice_head(n = 10) 
 
 pair_names = colnames(cbind(top10team, bottom10team))
 
@@ -204,7 +209,8 @@ ft5 = cbind(top10team, bottom10team) %>%
   add_header_row(values = c("Top 10 Team Games", 
                             "", 
                             "Bottom 10 Team Games"), 
-                 colwidths = c(4, 1, 4))
+                 colwidths = c(4, 1, 4)) %>%
+  add_header_row(values = "Table 5: Team TOCQ_T Single Games", colwidths = 9)
 
 gr5 = gen_grob(ft5, fit = "auto", scaling = "full", just = "center")
 gr5_dim = dim(gr5)
@@ -265,7 +271,7 @@ games_dict %>%
   geom_col() +
   scale_fill_manual(values = c("darkgreen", "black", "purple")) +
   theme_bw() +
-  labs(title = "Half Season TOCQ_T by Team",
+  labs(title = "Figure 6: Half Season TOCQ_T by Team",
        y= "Team",
        x = "Team TOCQ",
        fill = element_blank())
@@ -289,7 +295,7 @@ full_dict %>%
   scale_fill_gradient(low = "black", high = "lightblue") +
   geom_tile() +
   theme_bw() + 
-  labs(title = "Position Group overall TOCQ by Team",
+  labs(title = "Figure 7: Position Group overall TOCQ by Team",
        x = "Position Group",
        fill = "Position Group TOCQ")
 
