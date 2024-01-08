@@ -47,18 +47,20 @@ dev.off()
 ```{r}
 top10 = games_dict %>%
   filter(Opportunities > 10) %>%
-  mutate(TOCQ_X = Contains / Opportunities,
-         Game = as.character(game)) %>%
-  select(Game, Player_Name, Team, Position, TOCQ_X) %>%
+  mutate(TOCQ_X = Contains / Opportunities) %>%
+  left_join(games, by = join_by(game == gameId)) %>%
+  rename(Week = week) %>%
+  select(Week, Player_Name, Team, Position, TOCQ_X) %>%
   arrange(desc(TOCQ_X)) %>%
   slice_head(n = 10)
 
 bottom10 = games_dict %>%
   filter(Opportunities > 10) %>%
-  mutate(TOCQ_X = Contains / Opportunities,
-         Game = as.character(game)) %>%
-  select(Game, Player_Name, Team, Position, TOCQ_X) %>%
-  rename(bot_game = Game, bot_name = Player_Name, bot_team = Team, 
+  mutate(TOCQ_X = Contains / Opportunities) %>%
+  left_join(games, by = join_by(game == gameId)) %>%
+  rename(Week = week) %>%
+  select(Week, Player_Name, Team, Position, TOCQ_X) %>%
+  rename(bot_week = Week, bot_name = Player_Name, bot_team = Team, 
          bot_pos = Position, bot_tocq = TOCQ_X) %>%
   arrange(bot_tocq) %>%
   slice_head(n = 10)
@@ -67,7 +69,7 @@ pair_names = colnames(cbind(top10, bottom10))
 
 ft2 = cbind(top10, bottom10) %>%
   flextable(col_keys = c(pair_names[1:5], "col1", pair_names[6:10])) %>%
-  set_header_labels(bot_game = "Game", bot_name = "Player_Name", 
+  set_header_labels(bot_week = "Week", bot_name = "Player_Name", 
     bot_team = "Team", bot_pos = "Position",
     bot_tocq = "TOCQ_X" ) %>%
   width(j = "col1", width = .2) |> 
