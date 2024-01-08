@@ -139,7 +139,7 @@ dev.off()
 
 ```{r}
 pos_levels = full_dict %>%
-  filter(Opportunities > 5, Position != "DB") %>%
+  filter(Opportunities > 10, Position != "DB") %>%
   mutate(TOCQ_X = Contains / Opportunities, 
          Pos_group = case_when(Position %in% c("CB", "FS", "SS") ~ "Secondary",
                                Position %in% c("ILB", "MLB", "OLB") ~ "Linebacker",
@@ -148,7 +148,7 @@ pos_levels = full_dict %>%
   levels()
 
 full_dict %>%
-  filter(Opportunities > 5, Position != "DB") %>%
+  filter(Opportunities > 10, Position != "DB") %>%
   mutate(TOCQ_X = Contains / Opportunities, 
          Pos_group = case_when(Position %in% c("CB", "FS", "SS") ~ "Secondary",
                                Position %in% c("ILB", "MLB", "OLB") ~ "Linebacker",
