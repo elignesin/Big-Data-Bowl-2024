@@ -1,7 +1,7 @@
 ---
 title: "Big Data Bowl Visualizations"
 output: html_document
-date: "2024-01-06"
+date: "2024-04-05"
 ---
 
 ```{r setup, include=FALSE}
@@ -15,9 +15,21 @@ library(flextable)
 
 ```{r read_in_data}
 games = read_csv("games.csv")
-full_dict = read_csv("full_dictionary.csv")
-games_dict = read_csv("games_dictionary.csv")
+full_dict = read_csv("full_dictionary_54.csv")
+games_dict = read_csv("games_dictionary_54.csv")
+full_dict44 = read_csv("full_dictionary_44.csv")
+games_dict44 = read_csv("games_dictionary_44.csv")
+full_dict64 = read_csv("full_dictionary_64.csv")
+games_dict64 = read_csv("games_dictionary_64.csv")
+full_dict_c = read_csv("full_dictionary_constant.csv")
+games_dict_c = read_csv("games_dictionary_constant.csv")
 ex_dict = read_csv("example_dictionary.csv")
+
+full_dict$radius = "1.25yd Varying"
+full_dict44$radius = "1.0yd Varying"
+full_dict64$radius = "1.5yd Varying"
+full_dict_c$radius = "1.5yd Constant"
+sens_analysis_data = bind_rows(full_dict44, full_dict, full_dict64, full_dict_c)
 ```
 
 
@@ -30,17 +42,75 @@ ft1 = ex_dict %>%
   rename(Opportunity = Opportunities, Contain = Contains) %>%
   arrange(Opportunity, Contain) %>%
   flextable() %>%
-  add_header_row(values = "Table 1: Result of Example Play", colwidths = 4)
+  add_header_row(values = "TOCQ Output of Example Play", colwidths = 4)
 
 gr1 = gen_grob(ft1, fit = "auto", scaling = "full", just = "center")
 gr1_dim = dim(gr1)
 
-ragg::agg_png(filename = "Table1.png", width = 2*gr1_dim$width,
+ragg::agg_png(filename = "Figures and Tables/ExamplePlay.png", 
+              width = 2*gr1_dim$width,
               height = 2*gr1_dim$height, units = "in"
               )
 plot(gr1)
 dev.off()
+
+ft1
 ```
+
+## Figure 2: Sensitivity Analysis (Density comparison of Player TOCQ and N)
+
+```{r}
+sens_analysis_data %>%
+  select(index, Opportunities, Contains, radius) %>%
+  mutate(TOCQ = Contains / Opportunities) %>%
+  ggplot() +
+  geom_density(aes(x = TOCQ, group = radius, fill = radius, color = radius),
+               alpha = 0.5) +
+  scale_fill_manual(values = c("1.0yd Varying" = "darkturquoise",
+                               "1.25yd Varying" = "darkorange2",
+                               "1.5yd Varying" = "darkgoldenrod1",
+                               "1.5yd Constant" = "darkolivegreen3")) +
+  scale_color_manual(values = c("1.0yd Varying" = "darkturquoise",
+                               "1.25yd Varying" = "darkorange2",
+                               "1.5yd Varying" = "darkgoldenrod1",
+                               "1.5yd Constant" = "darkolivegreen3")) +
+  theme_minimal() +
+  labs(x = "Player Half-Season TOCQ",
+       y = "Density",
+       group = "Radius",
+       fill = "Radius",
+       color = "Radius",
+       title = "Sensitivity of TOCQ_X Density in Varying Tackle Zone Radius")
+
+ggsave("Figures And Tables/SensitivityAnalysisTOCQ.png")
+```
+```{r}
+sens_analysis_data %>%
+  select(index, Opportunities, Contains, radius) %>%
+  mutate(TOCQ = Contains / Opportunities) %>%
+  ggplot() +
+  geom_density(aes(x = Opportunities, group = radius, 
+                   fill = radius, color = radius),
+               alpha = 0.5) +
+  scale_fill_manual(values = c("1.0yd Varying" = "darkturquoise",
+                               "1.25yd Varying" = "darkorange2",
+                               "1.5yd Varying" = "darkgoldenrod1",
+                               "1.5yd Constant" = "darkolivegreen3")) +
+  scale_color_manual(values = c("1.0yd Varying" = "darkturquoise",
+                               "1.25yd Varying" = "darkorange2",
+                               "1.5yd Varying" = "darkgoldenrod1",
+                               "1.5yd Constant" = "darkolivegreen3")) +
+  theme_minimal() +
+  labs(x = "Player Half-Season Tackle Opportunities",
+       y = "Density",
+       group = "Radius",
+       fill = "Radius",
+       color = "Radius",
+       title = "Sensitivity of Tackle Opportunities in Varying Tackle Zone Radius")
+
+ggsave("Figures And Tables/SensitivityAnalysisN.png")
+```
+
 
 ## Table 2: Top and Bottom 10 individual game scores
 
@@ -78,17 +148,20 @@ ft2 = cbind(top10, bottom10) %>%
                             "", 
                             "Bottom 10 Individual Games"), 
                  colwidths = c(5, 1, 5)) %>%
-  add_header_row(values = "Table 2: Individual TOCQ_X Games (Min 10 Opportunities)", 
+  add_header_row(values = "Individual TOCQ_X Games (Min 10 Opportunities)", 
                  colwidths = 11)
 
 gr2 = gen_grob(ft2, fit = "auto", scaling = "full", just = "center")
 gr2_dim = dim(gr2)
 
-ragg::agg_png(filename = "Table2.png", width = 2*gr2_dim$width,
+ragg::agg_png(filename = "Figures And Tables/GamePlayerScores.png", 
+              width = 2*gr2_dim$width,
               height = 2*gr2_dim$height, units = "in"
               )
 plot(gr2)
 dev.off()
+
+ft2
 ```
 
 
@@ -124,17 +197,20 @@ ft3 = cbind(top10, bottom10) %>%
                             "", 
                             "Bottom 10 Individual Players"), 
                  colwidths = c(4, 1, 4)) %>%
-  add_header_row(values = "Table 3: Half Season TOCQ_X Scores (min 30 Opportunites)",
+  add_header_row(values = "Half Season TOCQ_X Scores (min 30 Opportunites)",
                  colwidths = 9)
 
 gr3 = gen_grob(ft3, fit = "auto", scaling = "full", just = "center")
 gr3_dim = dim(gr3)
 
-ragg::agg_png(filename = "Table3.png", width = 2*gr3_dim$width,
+ragg::agg_png(filename = "Figures And Tables/HalfSeasonPlayerScores.png", 
+              width = 2*gr3_dim$width,
               height = 2*gr3_dim$height, units = "in"
               )
 plot(gr3)
 dev.off()
+
+ft3
 ```
 
 ## Figure 4: Box plot by position group
@@ -159,10 +235,10 @@ full_dict %>%
   ggplot(aes(x = Position, y = TOCQ_X, fill = Pos_group)) +
   geom_boxplot() +
   theme_bw() +
-  labs(title = "Figure 4: Half Season TOCQ_X score by position group",
-       color = "Position Group")
+  labs(title = "Half Season TOCQ_X score by position group",
+       fill = "Position Group")
 
-ggsave("Figure4.png")
+ggsave("Figures And Tables/HalfSeasonPositionGroup.png")
 ```
 
 ## Table 5: Top and Bottom 10 Single Game TOCQ_T scores
@@ -212,41 +288,19 @@ ft5 = cbind(top10team, bottom10team) %>%
                             "", 
                             "Bottom 10 Team Games"), 
                  colwidths = c(4, 1, 4)) %>%
-  add_header_row(values = "Table 5: Team TOCQ_T Single Games", colwidths = 9)
+  add_header_row(values = "Team TOCQ_T Single Games", colwidths = 9)
 
 gr5 = gen_grob(ft5, fit = "auto", scaling = "full", just = "center")
 gr5_dim = dim(gr5)
 
-ragg::agg_png(filename = "Table5.png", width = 2*gr5_dim$width,
+ragg::agg_png(filename = "Figures And Tables/GameTeamScores.png", 
+              width = 2*gr5_dim$width,
               height = 2*gr5_dim$height, units = "in"
               )
 plot(gr5)
 dev.off()
-```
-## Unused Figure: Team TOCQ_T heatmap
 
-```{r}
-teams = games_dict %>% distinct(Team) %>% pull()
-
-games_dict %>%
-  group_by(game, Team) %>%
-  summarize(team_contains = sum(Contains),
-            team_opps = sum(Opportunities)) %>%
-  mutate(TOCQ_T = team_contains / team_opps,
-         gameId = game) %>%
-  left_join(games, by = join_by(gameId)) %>%
-  mutate(Opponent = case_when(Team == homeTeamAbbr ~ visitorTeamAbbr,
-                              Team == visitorTeamAbbr ~ homeTeamAbbr)) %>%
-  ungroup() %>%
-  group_by(Team, Opponent) %>%
-  summarize(TOCQ_T = mean(TOCQ_T)) %>%
-  ggplot(aes(x = Team, y = Opponent, fill = TOCQ_T)) +
-  geom_tile() +
-  coord_fixed() +
-  theme_minimal() +
-  scale_fill_continuous(limits = c(0,1)) %>%
-  labs(title = "TOCQ_T for Team-Opponent Pairs",
-       fill = "Team TOCQ")
+ft5
 ```
 
 ## Figure 6: Half Season TOCQ_T team bargraph
@@ -273,12 +327,12 @@ games_dict %>%
   geom_col() +
   scale_fill_manual(values = c("darkgreen", "black", "purple")) +
   theme_bw() +
-  labs(title = "Figure 6: Half Season TOCQ_T by Team",
+  labs(title = "Half Season TOCQ_T by Team",
        y= "Team",
        x = "Team TOCQ",
        fill = element_blank())
 
-ggsave("Figure6.png")
+ggsave("Figures And Tables/HalfSeasonTeam.png")
 ```
 
 ## Figure 7: Individual Position Group by team heatmap
@@ -297,10 +351,10 @@ full_dict %>%
   scale_fill_gradient(low = "black", high = "lightblue") +
   geom_tile() +
   theme_bw() + 
-  labs(title = "Figure 7: Position Group overall TOCQ by Team",
+  labs(title = "Position Group overall TOCQ by Team",
        x = "Position Group",
        fill = "Position Group TOCQ")
 
-ggsave("Figure7.png")
+ggsave("Figures And Tables/HalfSeasonTeamPositionGroup.png")
 ```
 
