@@ -9,5 +9,4 @@ This is my repository for my submission to NFL Big Data Bowl 2024. The repositor
 5.  `games_dictionary.csv`: The csv containing the necessary values to calculate **TOCQ** for each NFL defensive player in each game (rows are game/player combinations).
 6.  `example_dictionary.csv`: The csv containing the results of the play used as an example (and for the table in Figure 1 and the gif).
 7.  Figures and Tables: A folder containing the figure and table `png` files and the `gif` file for the example play.
-
-This repository also contains modified versions of the above files which were used for my Duke Masters of Statistical Science Final Portfolio, in the `Duke MSS` folder.
+8.  **Duke MSS: A folder containing modified files, data, and output for the Duke Masters of Statistical Science portfolio.**
