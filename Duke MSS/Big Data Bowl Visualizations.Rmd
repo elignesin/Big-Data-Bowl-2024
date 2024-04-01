@@ -30,6 +30,12 @@ full_dict44$radius = "1.0yd Varying"
 full_dict64$radius = "1.5yd Varying"
 full_dict_c$radius = "1.5yd Constant"
 sens_analysis_data = bind_rows(full_dict44, full_dict, full_dict64, full_dict_c)
+
+games_dict$radius = "1.25yd Varying"
+games_dict44$radius = "1.0yd Varying"
+games_dict64$radius = "1.5yd Varying"
+games_dict_c$radius = "1.5yd Constant"
+sens_analysis_team = bind_rows(games_dict44, games_dict, games_dict64, games_dict_c)
 ```
 
 
@@ -123,15 +129,52 @@ ft = sens_analysis_data %>%
             mean_n = mean(Opportunities),
             se_n = sqrt(var(Opportunities))) %>%
   flextable() %>%
-  set_header_labels(radius = "Radius", mean_tocq = "Mean TOCQ", 
-                    se_tocq = "SE TOCQ", mean_n = "Mean Opportunites",
-                    se_n = "SE Opportunities") %>%
-  empty_blanks()
+  set_header_labels(radius = "Radius", mean_tocq = "Mean TOCQ_X", 
+                    se_tocq = "SE TOCQ_X", mean_n = "Mean Player Opportunities",
+                    se_n = "SE Player Opportunities") %>%
+  empty_blanks() %>%
+  add_header_row(values = "Mean and SE of TOCQ_X score and opportunity with varying radius", 
+                 colwidths = 5)
+
 
 gr = gen_grob(ft, fit = "auto", scaling = "full", just = "center")
 gr_dim = dim(gr)
 
 ragg::agg_png(filename = "Figures And Tables/SensitivityTable.png", 
+              width = 2*gr_dim$width,
+              height = 2*gr_dim$height, units = "in"
+              )
+plot(gr)
+dev.off()
+
+```
+
+```{r}
+ft = sens_analysis_team %>%
+  group_by(radius, game, Team) %>%
+  summarize(team_contains = sum(Contains),
+            team_opps = sum(Opportunities)) %>%
+  mutate(TOCQ = team_contains / team_opps,
+         radius = radius) %>%
+  replace_na(list(TOCQ = 0)) %>%
+  group_by(radius) %>%
+  summarize(mean_tocq = mean(TOCQ),
+            se_tocq = sqrt(var(TOCQ)),
+            mean_n = mean(team_opps),
+            se_n = sqrt(var(team_opps))) %>%
+  flextable() %>%
+  set_header_labels(radius = "Radius", mean_tocq = "Mean TOCQ_T", 
+                    se_tocq = "SE TOCQ_T", mean_n = "Mean Team Opportunities",
+                    se_n = "SE Team Opportunities") %>%
+  empty_blanks() %>%
+  add_header_row(values = "Mean and SE of TOCQ_T score and opportunity with varying radius", 
+                 colwidths = 5)
+
+
+gr = gen_grob(ft, fit = "auto", scaling = "full", just = "center")
+gr_dim = dim(gr)
+
+ragg::agg_png(filename = "Figures And Tables/SensitivityTableTeam.png", 
               width = 2*gr_dim$width,
               height = 2*gr_dim$height, units = "in"
               )

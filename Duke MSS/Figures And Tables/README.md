@@ -12,4 +12,5 @@ This folder contains Figures and Tables for my Duke MSS portfolio project. These
 8.  `HalfSeasonTeamPositionGroup.png`: The heatmap of the team half-season TOCQ scores by position group, ratio relative to position group league average.
 9.  `SensitivityAnalysisN.png`: The density of tackle opportunities altering the tackle zone radius.
 10.  `SensitivityAnalysisTOCQ.png`: The density of TOCQ scores altering the tackle zone radius.
-11.  `SensitivityTable.png`: The mean and SE opportunities and TOCQ scores altering the tackle zone radius.
+11.  `SensitivityTable.png`: The mean and SE player opportunities and TOCQ_X scores altering the tackle zone radius.
+12.  `SensitivityTableTeam.png`: The mean and SE team opportunities and TOCQ_T scores altering the tackle zone radius.
