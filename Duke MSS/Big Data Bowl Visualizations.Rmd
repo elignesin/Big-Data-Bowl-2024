@@ -263,7 +263,7 @@ full_dict %>%
   mutate(Position = factor(Position, levels = pos_levels)) %>%
   ggplot(aes(x = Position, y = TOCQ_X, fill = Pos_group)) +
   geom_boxplot() +
-  theme_bw() +
+  theme_minimal() +
   labs(title = "Half Season TOCQ_X score by position group",
        fill = "Position Group")
 
@@ -355,7 +355,7 @@ games_dict %>%
   ggplot(aes(y = fct_reorder(Team, TOCQ_T), x = TOCQ_T, fill = avg)) +
   geom_col() +
   scale_fill_manual(values = c("darkgreen", "black", "purple")) +
-  theme_bw() +
+  theme_minimal() +
   labs(title = "Half Season TOCQ_T by Team",
        y= "Team",
        x = "Team TOCQ",
@@ -376,10 +376,13 @@ full_dict %>%
   summarize(pos_group_contains = sum(Contains),
             pos_group_opps = sum(Opportunities), .groups = "drop") %>%
   mutate(TOCQ_TP = pos_group_contains / pos_group_opps) %>%
-  ggplot(aes(x = Pos_group, y = Team, fill = TOCQ_TP)) +
-  scale_fill_gradient(low = "black", high = "lightblue") +
+  group_by(Pos_group) %>%
+  mutate(TOCQTP = TOCQ_TP / mean(TOCQ_TP)) %>%
+  ggplot(aes(x = Pos_group, y = Team, fill = TOCQTP)) +
+  scale_fill_gradient2(low = "darkred", mid = "white", high = "royalblue3",
+                       midpoint = 1) +
   geom_tile() +
-  theme_bw() + 
+  theme_minimal() + 
   labs(title = "Position Group overall TOCQ by Team",
        x = "Position Group",
        fill = "Position Group TOCQ")
