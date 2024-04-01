@@ -33,7 +33,7 @@ sens_analysis_data = bind_rows(full_dict44, full_dict, full_dict64, full_dict_c)
 ```
 
 
-## Table 1: An example play
+## An example play
 
 ```{r}
 ft1 = ex_dict %>%
@@ -47,7 +47,7 @@ ft1 = ex_dict %>%
 gr1 = gen_grob(ft1, fit = "auto", scaling = "full", just = "center")
 gr1_dim = dim(gr1)
 
-ragg::agg_png(filename = "Figures and Tables/ExamplePlay.png", 
+ragg::agg_png(filename = "Figures And Tables/ExamplePlay.png", 
               width = 2*gr1_dim$width,
               height = 2*gr1_dim$height, units = "in"
               )
@@ -57,7 +57,7 @@ dev.off()
 ft1
 ```
 
-## Figure 2: Sensitivity Analysis (Density comparison of Player TOCQ and N)
+## Sensitivity Analysis (Density comparison of Player TOCQ and N)
 
 ```{r}
 sens_analysis_data %>%
@@ -110,9 +110,38 @@ sens_analysis_data %>%
 
 ggsave("Figures And Tables/SensitivityAnalysisN.png")
 ```
+### Sensitivity Analysis Table
+
+```{r}
+ft = sens_analysis_data %>%
+  select(index, Opportunities, Contains, radius) %>%
+  mutate(TOCQ = Contains / Opportunities) %>%
+  replace_na(list(TOCQ = 0)) %>%
+  group_by(radius) %>%
+  summarize(mean_tocq = mean(TOCQ),
+            se_tocq = sqrt(var(TOCQ)),
+            mean_n = mean(Opportunities),
+            se_n = sqrt(var(Opportunities))) %>%
+  flextable() %>%
+  set_header_labels(radius = "Radius", mean_tocq = "Mean TOCQ", 
+                    se_tocq = "SE TOCQ", mean_n = "Mean Opportunites",
+                    se_n = "SE Opportunities") %>%
+  empty_blanks()
+
+gr = gen_grob(ft, fit = "auto", scaling = "full", just = "center")
+gr_dim = dim(gr)
+
+ragg::agg_png(filename = "Figures And Tables/SensitivityTable.png", 
+              width = 2*gr_dim$width,
+              height = 2*gr_dim$height, units = "in"
+              )
+plot(gr)
+dev.off()
+
+```
 
 
-## Table 2: Top and Bottom 10 individual game scores
+## Top and Bottom 10 individual game scores
 
 ```{r}
 top10 = games_dict %>%
@@ -165,7 +194,7 @@ ft2
 ```
 
 
-## Table 3: Top and Bottom 10 half season scores
+## Top and Bottom 10 half season scores
 
 ```{r}
 top10 = full_dict %>%
@@ -213,7 +242,7 @@ dev.off()
 ft3
 ```
 
-## Figure 4: Box plot by position group
+## Box plot by position group
 
 ```{r}
 pos_levels = full_dict %>%
@@ -241,7 +270,7 @@ full_dict %>%
 ggsave("Figures And Tables/HalfSeasonPositionGroup.png")
 ```
 
-## Table 5: Top and Bottom 10 Single Game TOCQ_T scores
+## Top and Bottom 10 Single Game TOCQ_T scores
 
 ```{r}
 top10team = games_dict %>%
@@ -303,7 +332,7 @@ dev.off()
 ft5
 ```
 
-## Figure 6: Half Season TOCQ_T team bargraph
+## Half Season TOCQ_T team bargraph
 
 ```{r}
 games_dict %>%
@@ -335,7 +364,7 @@ games_dict %>%
 ggsave("Figures And Tables/HalfSeasonTeam.png")
 ```
 
-## Figure 7: Individual Position Group by team heatmap
+## Individual Position Group by team heatmap
 
 ```{r}
 full_dict %>%
