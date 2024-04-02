@@ -15,4 +15,4 @@ This folder contains files that were modified between the Big Data Bowl Submissi
 5.  `example_dictionary.csv`: A csv containing an example of a single play **TOCQ** output, used with `Big Data Bowl Visualizations.Rmd` for one visualization.
 6.  `Portfolio Presentation Slides.ppt`: The powerpoint presentation of slides for the portfolio.
 7.  `Portfolio Report.pdf`: The final portfolio report as a .pdf file.
-8.  Figures and Tables: A folder containing the figure and table `png` files for the portfolio slides and report.
+8.  Figures and Tables: A folder containing the figure and table `.png` files for the portfolio slides and report and the `.gif` used in the presentation.
