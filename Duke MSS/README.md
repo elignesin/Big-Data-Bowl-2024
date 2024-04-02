@@ -13,6 +13,6 @@ This folder contains files that were modified between the Big Data Bowl Submissi
     -  **This is the radius chosen for the analysis:** Files with suffix `_54.csv` are **TOCQ** calculations with varying radius $r = \max(1.25, 1.25 + s\*t + 0.5\*a*t)$ for player speed $s$, player acceleration $a$, and frame rate $t = 0.1$.
     -  Files with suffix `_64.csv` are **TOCQ** calculations with varying radius $r = \max(1.5, 1.5 + s\*t + 0.5\*a*t)$ for player speed $s$, player acceleration $a$, and frame rate $t = 0.1$.
 5.  `example_dictionary.csv`: A csv containing an example of a single play **TOCQ** output, used with `Big Data Bowl Visualizations.Rmd` for one visualization.
-6.  `Portfolio Slides.ppt`: The powerpoint presentation of slides for the portfolio.
+6.  `Portfolio Presentation Slides.ppt`: The powerpoint presentation of slides for the portfolio.
 7.  `Portfolio Report.pdf`: The final portfolio report as a .pdf file.
 8.  Figures and Tables: A folder containing the figure and table `png` files for the portfolio slides and report.
