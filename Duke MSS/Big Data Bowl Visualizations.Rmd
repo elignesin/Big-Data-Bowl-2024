@@ -17,14 +17,14 @@ library(latex2exp)
 
 ```{r read_in_data}
 games = read_csv("games.csv")
-full_dict = read_csv("full_dictionary_54.csv")
-games_dict = read_csv("games_dictionary_54.csv")
-full_dict44 = read_csv("full_dictionary_44.csv")
-games_dict44 = read_csv("games_dictionary_44.csv")
-full_dict64 = read_csv("full_dictionary_64.csv")
-games_dict64 = read_csv("games_dictionary_64.csv")
-full_dict_c = read_csv("full_dictionary_constant.csv")
-games_dict_c = read_csv("games_dictionary_constant.csv")
+full_dict = read_csv("data/full_dictionary_54.csv")
+games_dict = read_csv("data/games_dictionary_54.csv")
+full_dict44 = read_csv("data/full_dictionary_44.csv")
+games_dict44 = read_csv("data/games_dictionary_44.csv")
+full_dict64 = read_csv("data/full_dictionary_64.csv")
+games_dict64 = read_csv("data/games_dictionary_64.csv")
+full_dict_c = read_csv("data/full_dictionary_constant.csv")
+games_dict_c = read_csv("data/games_dictionary_constant.csv")
 ex_dict = read_csv("example_dictionary.csv")
 
 full_dict$radius = "1.25yd Varying"
