@@ -11,6 +11,8 @@ library(ggplot2)
 library(knitr)
 library(kableExtra)
 library(flextable)
+library(ftExtra)
+library(latex2exp)
 ```
 
 ```{r read_in_data}
@@ -48,7 +50,10 @@ ft1 = ex_dict %>%
   rename(Opportunity = Opportunities, Contain = Contains) %>%
   arrange(Opportunity, Contain) %>%
   flextable() %>%
-  add_header_row(values = "TOCQ Output of Example Play", colwidths = 4)
+  set_header_labels(index = "Index", Player_Name = "Player Name", 
+                    Opportunity = "Tackle Opportunity", 
+                    Contain = "Tackle Containment") %>%
+  add_header_row(values = "TOCQ_X Output of Example Play", colwidths = 4)
 
 gr1 = gen_grob(ft1, fit = "auto", scaling = "full", just = "center")
 gr1_dim = dim(gr1)
@@ -81,12 +86,12 @@ sens_analysis_data %>%
                                "1.5yd Varying" = "darkgoldenrod1",
                                "1.5yd Constant" = "darkolivegreen3")) +
   theme_minimal() +
-  labs(x = "Player Half-Season TOCQ",
+  labs(x = TeX(r"( Player Half-Season $TOCQ_X$ )"),
        y = "Density",
        group = "Radius",
        fill = "Radius",
        color = "Radius",
-       title = "Sensitivity of TOCQ_X Density in Varying Tackle Zone Radius")
+       title = TeX(r"( Sensitivity of $TOCQ_X$ Density in Varying Tackle Zone Radius )"))
 
 ggsave("Figures And Tables/SensitivityAnalysisTOCQ.png")
 ```
@@ -211,7 +216,8 @@ pair_names = colnames(cbind(top10, bottom10))
 
 ft2 = cbind(top10, bottom10) %>%
   flextable(col_keys = c(pair_names[1:5], "col1", pair_names[6:10])) %>%
-  set_header_labels(bot_week = "Week", bot_name = "Player_Name", 
+  set_header_labels(Player_Name = "Player Name", 
+                    bot_week = "Week", bot_name = "Player Name", 
     bot_team = "Team", bot_pos = "Position",
     bot_tocq = "TOCQ_X" ) %>%
   width(j = "col1", width = .2) |> 
@@ -260,7 +266,7 @@ pair_names = colnames(cbind(top10, bottom10))
 
 ft3 = cbind(top10, bottom10) %>%
   flextable(col_keys = c(pair_names[1:4], "col1", pair_names[5:8])) %>%
-  set_header_labels(bot_name = "Player_Name", 
+  set_header_labels(Player_Name = "Player Name", bot_name = "Player Name", 
     bot_team = "Team", bot_pos = "Position",
     bot_tocq = "TOCQ_X" ) %>%
   width(j = "col1", width = .2) |> 
@@ -269,7 +275,7 @@ ft3 = cbind(top10, bottom10) %>%
                             "", 
                             "Bottom 10 Individual Players"), 
                  colwidths = c(4, 1, 4)) %>%
-  add_header_row(values = "Half Season TOCQ_X Scores (min 30 Opportunites)",
+  add_header_row(values = "Half Season TOCQ_X Scores (minimum 30 Opportunites)",
                  colwidths = 9)
 
 gr3 = gen_grob(ft3, fit = "auto", scaling = "full", just = "center")
@@ -307,7 +313,8 @@ full_dict %>%
   ggplot(aes(x = Position, y = TOCQ_X, fill = Pos_group)) +
   geom_boxplot() +
   theme_minimal() +
-  labs(title = "Half Season TOCQ_X score by position group",
+  labs(title = TeX(r"( Half Season $TOCQ_X$ score by position group )"),
+       x = TeX(r"( $TOCQ_X$ )"),
        fill = "Position Group")
 
 ggsave("Figures And Tables/HalfSeasonPositionGroup.png")
@@ -385,7 +392,7 @@ games_dict %>%
   mutate(TOCQ_T = team_contains / team_opps) %>%
   ungroup() %>%
   group_by(Team) %>%
-  summarize(TOCQ_T = mean(TOCQ_T),) %>%
+  summarize(TOCQ_T = mean(TOCQ_T)) %>%
   ungroup() %>%
   add_row(Team = "NFL", TOCQ_T = mean(pull(., TOCQ_T))) %>%
   mutate(avg = case_when(TOCQ_T > mean(pull(., TOCQ_T)) ~ "Above League Average",
@@ -399,9 +406,9 @@ games_dict %>%
   geom_col() +
   scale_fill_manual(values = c("darkgreen", "black", "purple")) +
   theme_minimal() +
-  labs(title = "Half Season TOCQ_T by Team",
+  labs(title = TeX(r"( Half Season Mean $TOCQ_T$ relative to NFL Average )"),
        y= "Team",
-       x = "Team TOCQ",
+       x = TeX(r"( Mean $TOCQ_T$ )"),
        fill = element_blank())
 
 ggsave("Figures And Tables/HalfSeasonTeam.png")
@@ -426,9 +433,9 @@ full_dict %>%
                        midpoint = 1) +
   geom_tile() +
   theme_minimal() + 
-  labs(title = "Position Group overall TOCQ by Team",
+  labs(title = TeX(r"( Position Group Mean $TOCQ_T$ Relative to League Average )"),
        x = "Position Group",
-       fill = "Position Group TOCQ")
+       fill = TeX(r"( $TOCQ_T$ Proportion )"))
 
 ggsave("Figures And Tables/HalfSeasonTeamPositionGroup.png")
 ```
