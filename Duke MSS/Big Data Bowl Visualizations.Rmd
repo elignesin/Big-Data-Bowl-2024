@@ -313,7 +313,7 @@ full_dict %>%
   ggplot(aes(x = Position, y = TOCQ_X, fill = Pos_group)) +
   geom_boxplot() +
   theme_minimal() +
-  labs(title = TeX(r"( Half Season $TOCQ_X$ score by position group )"),
+  labs(title = TeX(r"( Half Season $TOCQ_X$ Score by Position Group )"),
        x = TeX(r"( $TOCQ_X$ )"),
        fill = "Position Group")
 
